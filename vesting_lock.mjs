@@ -41,13 +41,17 @@ async function main() {
    
     const lockUntilTimeStamp = new Date();
     lockUntilTimeStamp.setMinutes(lockUntilTimeStamp.getMinutes() + 1);
+
+    // Convert the timestamp to a human-readable date and time
+    const unlockDate = new Date(lockUntilTimeStamp.getTime()).toLocaleString();
+    console.log(`🔒 Funds will be locked until: ${unlockDate}`);
    
     const unsignedTx = await depositFundTx(assets, lockUntilTimeStamp.getTime());
    
     const signedTx = await owner_wallet.signTx(unsignedTx);
     const txHash = await owner_wallet.submitTx(signedTx);
    
-    //Copy this txHash. You will need this hash in vesting_unlock.mjs
+    // Copy this txHash. You will need this hash in vesting_unlock.mjs
     console.log("txHash", txHash);
   }
    
