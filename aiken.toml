@@ -8,3 +8,8 @@ description = "Aiken contracts for project 'aiken-lang/hello_world'"
 name = "aiken-lang/stdlib"
 version = "v2"
 source = "github"
+
+[[dependencies]]
+name = "sidan-lab/vodka"
+version = "0.1.1-beta"
+source = "github"
