@@ -4,25 +4,25 @@ import {
   stringToHex,
 } from "@meshsdk/core";
 import { getScript, getTxBuilder, getUtxoByTxHash, wallet } from "./common";
- 
+
 async function main() {
   // get utxo, collateral and address from wallet
   const utxos = await wallet.getUtxos();
   const walletAddress = (await wallet.getUsedAddresses())[0];
   const collateral = (await wallet.getCollateral())[0];
- 
+
   const { scriptCbor } = getScript();
- 
+
   // hash of the public key of the wallet, to be used in the datum
   const signerHash = deserializeAddress(walletAddress).pubKeyHash;
   // redeemer value to unlock the funds
   const message = "Hello, World!";
- 
+
   // get the utxo from the script address of the locked funds
-  const txHashFromDesposit = process.argv[2];
-  const scriptUtxo = await getUtxoByTxHash(txHashFromDesposit);
- 
-    // build transaction with MeshTxBuilder
+  const txHashFromDeposit = process.argv[2];
+  const scriptUtxo = await getUtxoByTxHash(txHashFromDeposit);
+
+  // build transaction with MeshTxBuilder
   const txBuilder = getTxBuilder();
   await txBuilder
     .spendingPlutusScript("V3") // we used plutus v3
@@ -47,11 +47,16 @@ async function main() {
     .setNetwork('preprod')
     .complete();
   const unsignedTx = txBuilder.txHex;
- 
+
   const signedTx = await wallet.signTx(unsignedTx);
   const txHash = await wallet.submitTx(signedTx);
-  console.log(`1 tADA unlocked from the contract at Tx ID: ${txHash}`);
+
+  // Calculate the amount of ADA unlocked
+  const unlockedAmount = scriptUtxo.output.amount.find(asset => asset.unit === "lovelace")?.quantity || "0";
+  const unlockedAda = parseInt(unlockedAmount, 10) / 1_000_000;
+
+  console.log(`✅ ${unlockedAda} ADA unlocked from the contract at Tx ID: ${txHash}`);
 }
- 
+
 main();
 
